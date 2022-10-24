@@ -1,20 +1,19 @@
 import React, { CSSProperties } from 'react'
-import cn from 'clsx'
+import cn from 'classnames'
 import px from '@lib/to-pixels'
 import s from './Skeleton.module.css'
 
-interface SkeletonProps {
-  show?: boolean
-  block?: boolean
-  className?: string
-  style?: CSSProperties
+interface Props {
   width?: string | number
   height?: string | number
   boxHeight?: string | number
-  children?: React.ReactNode
+  style?: CSSProperties
+  show?: boolean
+  block?: boolean
+  className?: string
 }
 
-const Skeleton: React.FC<SkeletonProps> = ({
+const Skeleton: React.FC<Props> = ({
   style,
   width,
   height,

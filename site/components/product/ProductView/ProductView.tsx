@@ -1,95 +1,64 @@
-import cn from 'clsx'
+import { FC, useState } from 'react'
+import cn from 'classnames'
 import Image from 'next/image'
+import { NextSeo } from 'next-seo'
+
 import s from './ProductView.module.css'
-import { FC } from 'react'
-import type { Product } from '@commerce/types/product'
-import usePrice from '@framework/product/use-price'
-import { WishlistButton } from '@components/wishlist'
-import { ProductSlider, ProductCard } from '@components/product'
-import { Container, Text } from '@components/ui'
-import { SEO } from '@components/common'
-import ProductSidebar from '../ProductSidebar'
-import ProductTag from '../ProductTag'
-interface ProductViewProps {
-  product: Product
-  relatedProducts: Product[]
+import { useUI } from '@components/ui/context'
+import { Swatch, ProductSlider } from '@components/product'
+import { Button, Container, Text } from '@components/ui'
+
+import usePrice from '@framework/use-price'
+import useAddItem from '@framework/cart/use-add-item'
+import type { ProductNode } from '@framework/api/operations/get-product'
+import {
+  getCurrentVariant,
+  getProductOptions,
+  SelectedOptions,
+} from '../helpers'
+import WishlistButton from '@components/wishlist/WishlistButton'
+import Storyblok from '@lib/storyblok'
+interface Props {
+  className?: string
+  children?: any
+  product: ProductNode
+  story?: any
+
 }
 
-const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
+const ProductView: FC<Props> = ({ product, story  }) => {
+  const addItem = useAddItem()
   const { price } = usePrice({
-    amount: product.price.value,
-    baseAmount: product.price.retailPrice,
-    currencyCode: product.price.currencyCode!,
+    amount: product.prices?.price?.value,
+    baseAmount: product.prices?.retailPrice?.value,
+    currencyCode: product.prices?.price?.currencyCode!,
   })
+  const { openSidebar } = useUI()
+  const options = getProductOptions(product)
+  const [loading, setLoading] = useState(false)
+  const [choices, setChoices] = useState<SelectedOptions>({
+    size: null,
+    color: null,
+  })
+  const variant = getCurrentVariant(product, choices)
+
+  const addToCart = async () => {
+    setLoading(true)
+    try {
+      await addItem({
+        productId: product.entityId,
+        variantId: variant?.node.entityId!,
+      })
+      openSidebar()
+      setLoading(false)
+    } catch (err) {
+      setLoading(false)
+    }
+  }
 
   return (
-    <>
-      <Container className="max-w-none w-full" clean>
-        <div className={cn(s.root, 'fit')}>
-          <div className={cn(s.main, 'fit')}>
-            <ProductTag
-              name={product.name}
-              price={`${price} ${product.price?.currencyCode}`}
-              fontSize={32}
-            />
-            <div className={s.sliderContainer}>
-              <ProductSlider key={product.id}>
-                {product.images.map((image, i) => (
-                  <div key={image.url} className={s.imageContainer}>
-                    <Image
-                      className={s.img}
-                      src={image.url!}
-                      alt={image.alt || 'Product Image'}
-                      width={600}
-                      height={600}
-                      priority={i === 0}
-                      quality="85"
-                    />
-                  </div>
-                ))}
-              </ProductSlider>
-            </div>
-            {process.env.COMMERCE_WISHLIST_ENABLED && (
-              <WishlistButton
-                className={s.wishlistButton}
-                productId={product.id}
-                variant={product.variants[0]}
-              />
-            )}
-          </div>
-
-          <ProductSidebar
-            key={product.id}
-            product={product}
-            className={s.sidebar}
-          />
-        </div>
-        <hr className="mt-7 border-accent-2" />
-        <section className="py-12 px-6 mb-10">
-          <Text variant="sectionHeading">Related Products</Text>
-          <div className={s.relatedProductsGrid}>
-            {relatedProducts.map((p) => (
-              <div
-                key={p.path}
-                className="animated fadeIn bg-accent-0 border border-accent-2"
-              >
-                <ProductCard
-                  noNameTag
-                  product={p}
-                  key={p.path}
-                  variant="simple"
-                  className="animated fadeIn"
-                  imgProps={{
-                    width: 300,
-                    height: 300,
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-      </Container>
-      <SEO
+    <Container className="max-w-none w-full" clean>
+      <NextSeo
         title={product.name}
         description={product.description}
         openGraph={{
@@ -98,15 +67,103 @@ const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
           description: product.description,
           images: [
             {
-              url: product.images[0]?.url!,
-              width: '800',
-              height: '600',
+              url: product.images.edges?.[0]?.node.urlOriginal!,
+              width: 800,
+              height: 600,
               alt: product.name,
             },
           ],
         }}
       />
-    </>
+      <div className={cn(s.root, 'fit')}>
+        <div className={cn(s.productDisplay, 'fit')}>
+          <div className={s.nameBox}>
+            <h1 className={s.name}>{story && story?.name?.length ? story.name : product.name }</h1>
+            <div className={s.price}>
+              {price}
+              {` `}
+              {product.prices?.price.currencyCode}
+            </div>
+          </div>
+
+          <div className={s.sliderContainer}>
+            <ProductSlider key={product.entityId}>
+              {product.images.edges?.map((image, i) => (
+                <div key={image?.node.urlOriginal} className={s.imageContainer}>
+                  <Image
+                    className={s.img}
+                    src={image?.node.urlOriginal!}
+                    alt={image?.node.altText || 'Product Image'}
+                    width={1050}
+                    height={1050}
+                    priority={i === 0}
+                    quality="85"
+                  />
+                </div>
+              ))}
+            </ProductSlider>
+          </div>
+        </div>
+
+        <div className={s.sidebar}>
+          <section>
+            {options?.map((opt: any) => (
+              <div className="pb-4" key={opt.displayName}>
+                <h2 className="uppercase font-medium">{opt.displayName}</h2>
+                <div className="flex flex-row py-4">
+                  {opt.values.map((v: any, i: number) => {
+                    const active = (choices as any)[opt.displayName]
+
+                    return (
+                      <Swatch
+                        key={`${v.entityId}-${i}`}
+                        active={v.label === active}
+                        variant={opt.displayName}
+                        color={v.hexColors ? v.hexColors[0] : ''}
+                        label={v.label}
+                        onClick={() => {
+                          setChoices((choices) => {
+                            return {
+                              ...choices,
+                              [opt.displayName]: v.label,
+                            }
+                          })
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+
+            <div className="pb-14 break-words w-full max-w-xl">
+            { story  && story.description && story.description.content[0].content
+              ? (<Text html={Storyblok.richTextResolver.render(story.description)}/>)
+              : (<Text html={product.description} />)
+              }
+            </div>
+          </section>
+          <div>
+            <Button
+              aria-label="Add to Cart"
+              type="button"
+              className={s.button}
+              onClick={addToCart}
+              loading={loading}
+              disabled={!variant}
+            >
+              Add to Cart
+            </Button>
+          </div>
+        </div>
+
+        <WishlistButton
+          className={s.wishlistButton}
+          productId={product.entityId}
+          variant={variant!}
+        />
+      </div>
+    </Container>
   )
 }
 

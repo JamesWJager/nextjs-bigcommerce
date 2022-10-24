@@ -3,27 +3,25 @@ import React, {
   JSXElementConstructor,
   CSSProperties,
 } from 'react'
-import cn from 'clsx'
+import cn from 'classnames'
 import s from './Text.module.css'
 
-interface TextProps {
+interface Props {
   variant?: Variant
   className?: string
   style?: CSSProperties
   children?: React.ReactNode | any
   html?: string
-  onClick?: () => any
 }
 
 type Variant = 'heading' | 'body' | 'pageHeading' | 'sectionHeading'
 
-const Text: FunctionComponent<TextProps> = ({
+const Text: FunctionComponent<Props> = ({
   style,
   className = '',
   variant = 'body',
   children,
   html,
-  onClick,
 }) => {
   const componentsMap: {
     [P in Variant]: React.ComponentType<any> | string
@@ -58,7 +56,6 @@ const Text: FunctionComponent<TextProps> = ({
         },
         className
       )}
-      onClick={onClick}
       style={style}
       {...htmlContentProps}
     >

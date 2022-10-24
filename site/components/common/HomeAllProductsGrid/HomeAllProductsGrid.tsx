@@ -1,23 +1,30 @@
 import { FC } from 'react'
 import Link from 'next/link'
-import type { Product } from '@commerce/types/product'
 import { Grid } from '@components/ui'
+import { SbEditableContent } from "storyblok-react"
 import { ProductCard } from '@components/product'
 import s from './HomeAllProductsGrid.module.css'
 import { getCategoryPath, getDesignerPath } from '@lib/search'
-import { Brand, Category } from '@commerce/types/site'
 
 interface Props {
-  categories?: Category[]
-  brands?: Brand[]
-  products?: Product[]
+  categories?: any
+  brands?: any
+  newestProducts?: any
+  blok?: SbEditableContent
 }
 
-const HomeAllProductsGrid: FC<Props> = ({
-  categories,
-  brands,
-  products = [],
-}) => {
+const Head: FC<Props> = ({ categories, brands, newestProducts, blok }) => {
+  const activeProducts = blok?.products ? 
+    blok?.products?.items.map((sbProduct: any) => 
+      blok?.products?.fetchedItems?.find(({node}:any) => 
+      node.entityId === sbProduct.id)).filter(Boolean)  
+    : newestProducts;
+  const activeCategories = blok?.products ? 
+    blok?.categories?.items.map((sbCategory: any) => 
+      blok?.categories?.fetchedItems?.find((category:any) => 
+      category.entityId === sbCategory.id)).filter(Boolean)  
+    : categories;
+
   return (
     <div className={s.root}>
       <div className={s.asideWrapper}>
@@ -28,41 +35,39 @@ const HomeAllProductsGrid: FC<Props> = ({
                 <a>All Categories</a>
               </Link>
             </li>
-            {categories?.map((cat: any) => (
-              <li key={cat.path} className="py-1 text-accent-8 text-base">
+            {activeCategories.map((cat: any) => (
+              <li key={cat.path} className="py-1 text-accents-8 text-base">
                 <Link href={getCategoryPath(cat.path)}>
                   <a>{cat.name}</a>
                 </Link>
               </li>
             ))}
           </ul>
-          <ul className="">
+          {(brands && brands.length) ? (<ul className="">
             <li className="py-1 text-base font-bold tracking-wide">
               <Link href={getDesignerPath('')}>
                 <a>All Designers</a>
               </Link>
             </li>
-            {brands?.map(({ path, name }) => (
-              <li key={path} className="py-1 text-accent-8 text-base">
-                <Link href={getDesignerPath(path)}>
-                  <a>{name}</a>
+            {brands.flatMap(({ node }: any) => (
+              <li key={node.path} className="py-1 text-accents-8">
+                <Link href={getDesignerPath(node.path)}>
+                  <a>{node.name}</a>
                 </Link>
               </li>
             ))}
-          </ul>
+          </ul>) : null }
         </div>
       </div>
       <div className="flex-1">
         <Grid layout="normal">
-          {products.map((product) => (
+          {activeProducts.map(({ node }: any) => (
             <ProductCard
-              key={product.path}
-              product={product}
+              key={node.path}
+              product={node}
               variant="simple"
-              imgProps={{
-                width: 480,
-                height: 480,
-              }}
+              imgWidth={480}
+              imgHeight={480}
             />
           ))}
         </Grid>
@@ -71,4 +76,4 @@ const HomeAllProductsGrid: FC<Props> = ({
   )
 }
 
-export default HomeAllProductsGrid
+export default Head

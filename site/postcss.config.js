@@ -1,8 +1,7 @@
 module.exports = {
   plugins: [
-    'tailwindcss/nesting',
     'tailwindcss',
-    'autoprefixer',
+    'postcss-nesting',
     'postcss-flexbugs-fixes',
     [
       'postcss-preset-env',

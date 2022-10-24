@@ -1,17 +1,16 @@
 import React, { FC, useState } from 'react'
-import cn from 'clsx'
-import { useUI } from '@components/ui'
-import { Heart } from '@components/icons'
+import cn from 'classnames'
+import type { ProductNode } from '@framework/api/operations/get-all-products'
 import useAddItem from '@framework/wishlist/use-add-item'
-import useCustomer from '@framework/customer/use-customer'
-import useWishlist from '@framework/wishlist/use-wishlist'
 import useRemoveItem from '@framework/wishlist/use-remove-item'
-import s from './WishlistButton.module.css'
-import type { Product, ProductVariant } from '@commerce/types/product'
+import useWishlist from '@framework/wishlist/use-wishlist'
+import useCustomer from '@framework/use-customer'
+import { Heart } from '@components/icons'
+import { useUI } from '@components/ui/context'
 
 type Props = {
-  productId: Product['id']
-  variant: ProductVariant
+  productId: number
+  variant: NonNullable<ProductNode['variants']['edges']>[0]
 } & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 const WishlistButton: FC<Props> = ({
@@ -20,17 +19,16 @@ const WishlistButton: FC<Props> = ({
   className,
   ...props
 }) => {
-  const { data } = useWishlist()
   const addItem = useAddItem()
   const removeItem = useRemoveItem()
+  const { data } = useWishlist()
   const { data: customer } = useCustomer()
-  const { openModal, setModalView } = useUI()
   const [loading, setLoading] = useState(false)
-
-  // @ts-ignore Wishlist is not always enabled
+  const { openModal, setModalView } = useUI()
   const itemInWishlist = data?.items?.find(
-    // @ts-ignore Wishlist is not always enabled
-    (item) => item.product_id === productId && item.variant_id === variant.id
+    (item) =>
+      item.product_id === productId &&
+      item.variant_id === variant?.node.entityId
   )
 
   const handleWishlistChange = async (e: any) => {
@@ -52,7 +50,7 @@ const WishlistButton: FC<Props> = ({
       } else {
         await addItem({
           productId,
-          variantId: variant?.id!,
+          variantId: variant?.node.entityId!,
         })
       }
 
@@ -65,16 +63,11 @@ const WishlistButton: FC<Props> = ({
   return (
     <button
       aria-label="Add to wishlist"
-      className={cn(s.root, className)}
+      className={cn({ 'opacity-50': loading }, className)}
       onClick={handleWishlistChange}
       {...props}
     >
-      <Heart
-        className={cn(s.icon, {
-          [s.loading]: loading,
-          [s.inWishlist]: itemInWishlist,
-        })}
-      />
+      <Heart fill={itemInWishlist ? 'var(--pink)' : 'none'} />
     </button>
   )
 }

@@ -1,46 +1,20 @@
 import { useKeenSlider } from 'keen-slider/react'
-import React, {
-  Children,
-  isValidElement,
-  useState,
-  useRef,
-  useEffect,
-} from 'react'
-import cn from 'clsx'
-import { a } from '@react-spring/web'
+import React, { Children, FC, isValidElement, useState, useRef, useEffect } from 'react'
+import cn from 'classnames'
+
 import s from './ProductSlider.module.css'
-import ProductSliderControl from '../ProductSliderControl'
 
-interface ProductSliderProps {
-  children?: React.ReactNode[]
-  className?: string
-}
-
-const ProductSlider: React.FC<ProductSliderProps> = ({
-  children,
-  className = '',
-}) => {
+const ProductSlider: FC = ({ children }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
   const sliderContainerRef = useRef<HTMLDivElement>(null)
-  const thumbsContainerRef = useRef<HTMLDivElement>(null)
 
   const [ref, slider] = useKeenSlider<HTMLDivElement>({
     loop: true,
-    slides: { perView: 1 },
-    created: () => setIsMounted(true),
+    slidesPerView: 1,
+    mounted: () => setIsMounted(true),
     slideChanged(s) {
-      const slideNumber = s.track.details.rel
-      setCurrentSlide(slideNumber)
-
-      if (thumbsContainerRef.current) {
-        const $el = document.getElementById(`thumb-${slideNumber}`)
-        if (slideNumber >= 3) {
-          thumbsContainerRef.current.scrollLeft = $el!.offsetLeft
-        } else {
-          thumbsContainerRef.current.scrollLeft = 0
-        }
-      }
+      setCurrentSlide(s.details().relativeSlide)
     },
   })
 
@@ -51,7 +25,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
       const touchXPosition = event.touches[0].pageX
       // Size of the touch area
       const touchXRadius = event.touches[0].radiusX || 0
-
+      
       // We set a threshold (10px) on both sizes of the screen,
       // if the touch area overlaps with the screen edges
       // it's likely to trigger the navigation. We prevent the
@@ -59,31 +33,35 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
       if (
         touchXPosition - touchXRadius < 10 ||
         touchXPosition + touchXRadius > window.innerWidth - 10
-      )
-        event.preventDefault()
+      ) event.preventDefault()
     }
 
-    const slider = sliderContainerRef.current!
-
-    slider.addEventListener('touchstart', preventNavigation)
+    sliderContainerRef.current!
+      .addEventListener('touchstart', preventNavigation)
 
     return () => {
-      if (slider) {
-        slider.removeEventListener('touchstart', preventNavigation)
-      }
+      sliderContainerRef.current!
+      .removeEventListener('touchstart', preventNavigation)
     }
   }, [])
 
-  const onPrev = React.useCallback(() => slider.current?.prev(), [slider])
-  const onNext = React.useCallback(() => slider.current?.next(), [slider])
-
   return (
-    <div className={cn(s.root, className)} ref={sliderContainerRef}>
+    <div className={s.root} ref={sliderContainerRef}>
+      <button
+        className={cn(s.leftControl, s.control)}
+        onClick={slider?.prev}
+        aria-label="Previous Product Image"
+      />
+      <button
+        className={cn(s.rightControl, s.control)}
+        onClick={slider?.next}
+        aria-label="Next Product Image"
+      />
       <div
         ref={ref}
-        className={cn(s.slider, { [s.show]: isMounted }, 'keen-slider')}
+        className="keen-slider h-full transition-opacity duration-150"
+        style={{ opacity: isMounted ? 1 : 0 }}
       >
-        {slider && <ProductSliderControl onPrev={onPrev} onNext={onNext} />}
         {Children.map(children, (child) => {
           // Add the keen-slider__slide className to children
           if (isValidElement(child)) {
@@ -100,28 +78,26 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
           return child
         })}
       </div>
-
-      <a.div className={s.album} ref={thumbsContainerRef}>
-        {slider &&
-          Children.map(children, (child, idx) => {
-            if (isValidElement(child)) {
-              return {
-                ...child,
-                props: {
-                  ...child.props,
-                  className: cn(child.props.className, s.thumb, {
-                    [s.selected]: currentSlide === idx,
-                  }),
-                  id: `thumb-${idx}`,
-                  onClick: () => {
-                    slider.current?.moveToIdx(idx)
-                  },
-                },
-              }
-            }
-            return child
+      {slider && (
+        <div className={cn(s.positionIndicatorsContainer)}>
+          {[...Array(slider.details().size).keys()].map((idx) => {
+            return (
+              <button
+                aria-label="Position indicator"
+                key={idx}
+                className={cn(s.positionIndicator, {
+                  [s.positionIndicatorActive]: currentSlide === idx,
+                })}
+                onClick={() => {
+                  slider.moveToSlideRelative(idx)
+                }}
+              >
+                <div className={s.dot} />
+              </button>
+            )
           })}
-      </a.div>
+        </div>
+      )}
     </div>
   )
 }

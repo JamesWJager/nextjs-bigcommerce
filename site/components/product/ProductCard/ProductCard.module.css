@@ -1,114 +1,136 @@
 .root {
   @apply relative max-h-full w-full box-border overflow-hidden
   bg-no-repeat bg-center bg-cover transition-transform
-  ease-linear cursor-pointer inline-block bg-accent-1;
+  ease-linear cursor-pointer;
   height: 100% !important;
+
+  &:hover {
+    & .squareBg:before {
+      transform: scale(0.98);
+    }
+
+    & .productImage {
+      transform: scale(1.2625);
+    }
+
+    & .productTitle > span,
+    & .productPrice,
+    & .wishlistButton {
+      @apply bg-secondary text-secondary;
+    }
+
+    &:nth-child(6n + 1) .productTitle > span,
+    &:nth-child(6n + 1) .productPrice,
+    &:nth-child(6n + 1) .wishlistButton {
+      @apply bg-violet text-white;
+    }
+
+    &:nth-child(6n + 5) .productTitle > span,
+    &:nth-child(6n + 5) .productPrice,
+    &:nth-child(6n + 5) .wishlistButton {
+      @apply bg-blue text-white;
+    }
+
+    &:nth-child(6n + 3) .productTitle > span,
+    &:nth-child(6n + 3) .productPrice,
+    &:nth-child(6n + 3) .wishlistButton {
+      @apply bg-pink text-white;
+    }
+
+    &:nth-child(6n + 6) .productTitle > span,
+    &:nth-child(6n + 6) .productPrice,
+    &:nth-child(6n + 6) .wishlistButton {
+      @apply bg-cyan text-white;
+    }
+  }
+
+  &:nth-child(6n + 1) .squareBg {
+    @apply bg-violet;
+  }
+
+  &:nth-child(6n + 5) .squareBg {
+    @apply bg-blue;
+  }
+
+  &:nth-child(6n + 3) .squareBg {
+    @apply bg-pink;
+  }
+
+  &:nth-child(6n + 6) .squareBg {
+    @apply bg-cyan;
+  }
 }
 
-.root:hover {
-  & .productImage {
-    transform: scale(1.2625);
+.squareBg,
+.productTitle > span,
+.productPrice,
+.wishlistButton {
+  @apply transition-colors ease-in-out duration-500;
+}
+
+.squareBg {
+  @apply transition-colors absolute inset-0 z-0;
+  background-color: #212529;
+}
+
+.squareBg:before {
+  @apply transition ease-in-out duration-500 bg-repeat-space w-full h-full block;
+  background-image: url('/bg-products.svg');
+  content: '';
+}
+
+.simple {
+  & .squareBg {
+    @apply bg-accents-0 !important;
+    background-image: url('/bg-products.svg');
   }
 
-  & .header .name span,
-  & .header .price,
-  & .wishlistButton {
-    @apply bg-secondary text-secondary;
+  & .productTitle {
+    @apply pt-2;
+    font-size: 1rem;
+
+    & span {
+      @apply leading-extra-loose;
+    }
   }
 
-  &:nth-child(6n + 1) .header .name span,
-  &:nth-child(6n + 1) .header .price,
-  &:nth-child(6n + 1) .wishlistButton {
-    @apply bg-violet text-white;
-  }
-
-  &:nth-child(6n + 5) .header .name span,
-  &:nth-child(6n + 5) .header .price,
-  &:nth-child(6n + 5) .wishlistButton {
-    @apply bg-blue text-white;
-  }
-
-  &:nth-child(6n + 3) .header .name span,
-  &:nth-child(6n + 3) .header .price,
-  &:nth-child(6n + 3) .wishlistButton {
-    @apply bg-pink text-white;
-  }
-
-  &:nth-child(6n + 6) .header .name span,
-  &:nth-child(6n + 6) .header .price,
-  &:nth-child(6n + 6) .wishlistButton {
-    @apply bg-cyan text-white;
+  & .productPrice {
+    @apply text-sm;
   }
 }
 
-.header {
-  @apply transition-colors ease-in-out duration-500
-  absolute top-0 left-0 z-20 pr-16;
-}
-
-.header .name {
-  @apply pt-0 max-w-full w-full leading-extra-loose
-  transition-colors ease-in-out duration-500;
+.productTitle {
+  @apply pt-0 max-w-full w-full leading-extra-loose;
   font-size: 2rem;
+  letter-spacing: 0.4px;
+
+  & span {
+    @apply py-4 px-6 bg-primary text-primary font-bold;
+    font-size: inherit;
+    letter-spacing: inherit;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+}
+
+.productPrice {
+  @apply py-4 px-6 bg-primary text-primary font-semibold inline-block text-sm leading-6;
   letter-spacing: 0.4px;
 }
 
-.header .name span {
-  @apply py-4 px-6 bg-primary text-primary font-bold
-  transition-colors ease-in-out duration-500;
-  font-size: inherit;
-  letter-spacing: inherit;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-
-.header .price {
-  @apply pt-2 px-6 pb-4 text-sm bg-primary text-accent-9
-  font-semibold inline-block tracking-wide
-  transition-colors ease-in-out duration-500;
+.wishlistButton {
+  @apply w-10 h-10 flex ml-auto items-center justify-center bg-primary text-primary font-semibold  text-xs leading-6 cursor-pointer;
 }
 
 .imageContainer {
-  @apply flex items-center justify-center overflow-hidden;
+  @apply flex items-center justify-center;
+  overflow: hidden;
+
+  & > div {
+    min-width: 100%;
+  }
 }
 
-.imageContainer > div {
-  min-width: 100%;
-}
-
-.imageContainer .productImage {
-  @apply transform transition-transform duration-500
-  object-cover scale-120;
-}
-
-.root .wishlistButton {
-  @apply top-0 right-0 z-30 absolute;
-}
-
-/* Variant Simple */
-.simple .header .name {
-  @apply pt-2 text-lg leading-10 -mt-1;
-}
-
-.simple .header .price {
-  @apply text-sm;
-}
-
-/* Variant Slim */
-.slim {
-  @apply bg-transparent relative overflow-hidden
-  box-border;
-}
-
-.slim .header {
-  @apply absolute inset-0 flex items-center justify-end mr-8 z-20;
-}
-
-.slim span {
-  @apply bg-accent-9 text-accent-0 inline-block p-3
-  font-bold text-xl break-words;
-}
-
-.root:global(.secondary) .header span {
-  @apply bg-accent-0 text-accent-9;
+.productImage {
+  @apply transform transition-transform duration-500 object-cover scale-120;
 }

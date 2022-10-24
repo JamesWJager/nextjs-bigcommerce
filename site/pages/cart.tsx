@@ -1,56 +1,49 @@
 import type { GetStaticPropsContext } from 'next'
+import { getConfig } from '@framework/api'
+import getAllPages from '@framework/api/operations/get-all-pages'
 import useCart from '@framework/cart/use-cart'
-import usePrice from '@framework/product/use-price'
-import commerce from '@lib/api/commerce'
+import usePrice from '@framework/use-price'
 import { Layout } from '@components/common'
-import { Button, Text, Container } from '@components/ui'
-import { Bag, Cross, Check, MapPin, CreditCard } from '@components/icons'
+import { Button } from '@components/ui'
+import { Bag, Cross, Check } from '@components/icons'
 import { CartItem } from '@components/cart'
-import { useUI } from '@components/ui/context'
+import { Text } from '@components/ui'
 
 export async function getStaticProps({
   preview,
   locale,
-  locales,
 }: GetStaticPropsContext) {
-  const config = { locale, locales }
-  const pagesPromise = commerce.getAllPages({ config, preview })
-  const siteInfoPromise = commerce.getSiteInfo({ config, preview })
-  const { pages } = await pagesPromise
-  const { categories } = await siteInfoPromise
+  const config = getConfig({ locale })
+  const { pages } = await getAllPages({ config, preview })
   return {
-    props: { pages, categories },
+    props: { pages },
   }
 }
 
 export default function Cart() {
-  const error = null
-  const success = null
-  const { data, isLoading, isEmpty } = useCart()
-  const { openSidebar, setSidebarView } = useUI()
-
+  const { data, isEmpty } = useCart()
   const { price: subTotal } = usePrice(
     data && {
-      amount: Number(data.subtotalPrice),
+      amount: data.base_amount,
       currencyCode: data.currency.code,
     }
   )
   const { price: total } = usePrice(
     data && {
-      amount: Number(data.totalPrice),
+      amount: data.cart_amount,
       currencyCode: data.currency.code,
     }
   )
 
-  const goToCheckout = () => {
-    openSidebar()
-    setSidebarView('CHECKOUT_VIEW')
-  }
+  const items = data?.line_items.physical_items ?? []
+
+  const error = null
+  const success = null
 
   return (
-    <Container className="grid lg:grid-cols-12 pt-4 gap-20">
-      <div className="lg:col-span-7">
-        {isLoading || isEmpty ? (
+    <div className="grid lg:grid-cols-12">
+      <div className="lg:col-span-8">
+        {isEmpty ? (
           <div className="flex-1 px-12 py-24 flex flex-col justify-center items-center ">
             <span className="border border-dashed border-secondary flex items-center justify-center w-16 h-16 bg-primary p-12 rounded-lg text-primary">
               <Bag className="absolute" />
@@ -58,7 +51,7 @@ export default function Cart() {
             <h2 className="pt-6 text-2xl font-bold tracking-wide text-center">
               Your cart is empty
             </h2>
-            <p className="text-accent-6 px-10 text-center pt-2">
+            <p className="text-accents-6 px-10 text-center pt-2">
               Biscuit oat cake wafer icing ice cream tiramisu pudding cupcake.
             </p>
           </div>
@@ -82,11 +75,11 @@ export default function Cart() {
             </h2>
           </div>
         ) : (
-          <div className="lg:px-0 sm:px-6 flex-1">
+          <div className="px-4 sm:px-6 flex-1">
             <Text variant="pageHeading">My Cart</Text>
             <Text variant="sectionHeading">Review your Order</Text>
-            <ul className="py-6 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-accent-2 border-b border-accent-2">
-              {data!.lineItems.map((item: any) => (
+            <ul className="py-6 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-accents-2 border-b border-accents-2">
+              {items.map((item) => (
                 <CartItem
                   key={item.id}
                   item={item}
@@ -101,48 +94,16 @@ export default function Cart() {
               </Text>
               <div className="flex py-6 space-x-6">
                 {[1, 2, 3, 4, 5, 6].map((x) => (
-                  <div
-                    key={x}
-                    className="border border-accent-3 w-full h-24 bg-accent-2 bg-opacity-50 transform cursor-pointer hover:scale-110 duration-75"
-                  />
+                  <div className="border border-accents-3 w-full h-24 bg-accents-2 bg-opacity-50 transform cursor-pointer hover:scale-110 duration-75" />
                 ))}
               </div>
             </div>
           </div>
         )}
       </div>
-      <div className="lg:col-span-5">
+      <div className="lg:col-span-4">
         <div className="flex-shrink-0 px-4 py-24 sm:px-6">
-          {process.env.COMMERCE_CUSTOMCHECKOUT_ENABLED && (
-            <>
-              {/* Shipping Address */}
-              {/* Only available with customCheckout set to true - Meaning that the provider does offer checkout functionality. */}
-              <div className="rounded-md border border-accent-2 px-6 py-6 mb-4 text-center flex items-center justify-center cursor-pointer hover:border-accent-4">
-                <div className="mr-5">
-                  <MapPin />
-                </div>
-                <div className="text-sm text-center font-medium">
-                  <span className="uppercase">+ Add Shipping Address</span>
-                  {/* <span>
-                    1046 Kearny Street.<br/>
-                    San Franssisco, California
-                  </span> */}
-                </div>
-              </div>
-              {/* Payment Method */}
-              {/* Only available with customCheckout set to true - Meaning that the provider does offer checkout functionality. */}
-              <div className="rounded-md border border-accent-2 px-6 py-6 mb-4 text-center flex items-center justify-center cursor-pointer hover:border-accent-4">
-                <div className="mr-5">
-                  <CreditCard />
-                </div>
-                <div className="text-sm text-center font-medium">
-                  <span className="uppercase">+ Add Payment Method</span>
-                  {/* <span>VISA #### #### #### 2345</span> */}
-                </div>
-              </div>
-            </>
-          )}
-          <div className="border-t border-accent-2">
+          <div className="border-t border-accents-2">
             <ul className="py-3">
               <li className="flex justify-between py-1">
                 <span>Subtotal</span>
@@ -157,7 +118,7 @@ export default function Cart() {
                 <span className="font-bold tracking-wide">FREE</span>
               </li>
             </ul>
-            <div className="flex justify-between border-t border-accent-2 py-3 font-bold mb-10">
+            <div className="flex justify-between border-t border-accents-2 py-3 font-bold mb-10">
               <span>Total</span>
               <span>{total}</span>
             </div>
@@ -169,23 +130,15 @@ export default function Cart() {
                   Continue Shopping
                 </Button>
               ) : (
-                <>
-                  {process.env.COMMERCE_CUSTOMCHECKOUT_ENABLED ? (
-                    <Button Component="a" width="100%" onClick={goToCheckout}>
-                      Proceed to Checkout ({total})
-                    </Button>
-                  ) : (
-                    <Button href="/checkout" Component="a" width="100%">
-                      Proceed to Checkout
-                    </Button>
-                  )}
-                </>
+                <Button href="/checkout" Component="a" width="100%">
+                  Proceed to Checkout
+                </Button>
               )}
             </div>
           </div>
         </div>
       </div>
-    </Container>
+    </div>
   )
 }
 

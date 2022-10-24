@@ -18,10 +18,10 @@ export function useSearchMeta(asPath: string) {
       c = parts[4]
     }
 
-    if (path !== pathname) setPathname(path)
+    setPathname(path)
     if (c !== category) setCategory(c)
     if (b !== brand) setBrand(b)
-  }, [asPath, pathname, category, brand])
+  }, [asPath])
 
   return { pathname, category, brand }
 }
@@ -44,7 +44,9 @@ export const getCategoryPath = (path: string, brand?: string) => {
 }
 
 export const getDesignerPath = (path: string, category?: string) => {
-  return `/search${path ? `/designers${path}` : ''}${
+  const designer = getSlug(path).replace(/^brands/, 'designers')
+
+  return `/search${designer ? `/${designer}` : ''}${
     category ? `/${category}` : ''
   }`
 }

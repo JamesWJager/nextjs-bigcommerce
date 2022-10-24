@@ -1,11 +1,15 @@
 .root {
-  min-height: 100vh;
+  @apply h-full flex flex-col;
 }
 
 .root.empty {
   @apply bg-secondary text-secondary;
 }
 
-.lineItemsList {
-  @apply py-4 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-accent-2 border-accent-2;
+.root.success {
+  @apply bg-green text-white;
+}
+
+.root.error {
+  @apply bg-red text-white;
 }
