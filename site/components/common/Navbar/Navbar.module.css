@@ -1,5 +1,6 @@
 .root {
   @apply sticky top-0 bg-primary z-40 transition-all duration-150;
+<<<<<<< HEAD
   min-height: 74px;
 }
 
@@ -23,6 +24,20 @@
 
 .link:focus {
   @apply outline-none text-accent-8;
+=======
+}
+
+.link {
+  @apply inline-flex items-center text-primary leading-6 font-medium transition ease-in-out duration-75 cursor-pointer text-accents-6;
+}
+
+.link:hover {
+  @apply text-accents-9;
+}
+
+.link:focus {
+  @apply outline-none text-accents-8;
+>>>>>>> parent of f3a6202 (testing)
 }
 
 .logo {

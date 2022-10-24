@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, {
   useRef,
   useEffect,
@@ -9,11 +10,15 @@ import React, {
   ReactNode,
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
+=======
+import React, { useRef, useEffect, MouseEvent } from 'react'
+>>>>>>> parent of f3a6202 (testing)
 import hasParent from './has-parent'
 
 interface ClickOutsideProps {
   active: boolean
   onClick: (e?: MouseEvent) => void
+<<<<<<< HEAD
   ref?: Ref<any>
   children?: ReactNode
 }
@@ -38,6 +43,20 @@ const ClickOutside: FC<ClickOutsideProps> = forwardRef(
 
     if (typeof onClick != 'function') {
       throw new Error('onClick must be a valid function')
+=======
+  children: any
+}
+
+const ClickOutside = ({ active = true, onClick, children }: ClickOutsideProps) => {
+    const innerRef = useRef()
+
+    const handleClick = (event: any) => {
+      if (!hasParent(event.target, innerRef?.current)) {
+        if (typeof onClick === 'function') {
+          onClick(event)
+        }
+      }
+>>>>>>> parent of f3a6202 (testing)
     }
 
     useEffect(() => {
@@ -45,6 +64,10 @@ const ClickOutside: FC<ClickOutsideProps> = forwardRef(
         document.addEventListener('mousedown', handleClick)
         document.addEventListener('touchstart', handleClick)
       }
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of f3a6202 (testing)
       return () => {
         if (active) {
           document.removeEventListener('mousedown', handleClick)
@@ -53,6 +76,7 @@ const ClickOutside: FC<ClickOutsideProps> = forwardRef(
       }
     })
 
+<<<<<<< HEAD
     const handleClick = (event: any) => {
       /**
        * Check if the clicked element is contained by the top level tag provided to the
@@ -82,4 +106,9 @@ const ClickOutside: FC<ClickOutsideProps> = forwardRef(
 )
 
 ClickOutside.displayName = 'ClickOutside'
+=======
+    return React.cloneElement(children, { ref: innerRef })
+  }
+
+>>>>>>> parent of f3a6202 (testing)
 export default ClickOutside

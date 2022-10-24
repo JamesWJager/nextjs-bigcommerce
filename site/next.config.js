@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const commerce = require('./commerce.config.json')
 const { withCommerceConfig, getProviderName } = require('./commerce-config')
 
@@ -10,12 +11,23 @@ const isVendure = provider === '@vercel/commerce-vendure'
 
 module.exports = withCommerceConfig({
   commerce,
+=======
+const bundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: !!process.env.BUNDLE_ANALYZE,
+})
+
+module.exports = bundleAnalyzer({
+  images: {
+    domains: ['cdn11.bigcommerce.com'],
+  },
+>>>>>>> parent of f3a6202 (testing)
   i18n: {
     locales: ['en-US', 'es'],
     defaultLocale: 'en-US',
   },
   rewrites() {
     return [
+<<<<<<< HEAD
       (isBC || isShopify || isSwell || isVendure || isSaleor) && {
         source: '/checkout',
         destination: '/api/checkout',
@@ -44,3 +56,32 @@ module.exports = withCommerceConfig({
 
 // Don't delete this console log, useful to see the commerce config in Vercel deployments
 console.log('next.config.js', JSON.stringify(module.exports, null, 2))
+=======
+      {
+        source: '/checkout',
+        destination: '/api/bigcommerce/checkout',
+      },
+      // The logout is also an action so this route is not required, but it's also another way
+      // you can allow a logout!
+      {
+        source: '/logout',
+        destination: '/api/bigcommerce/customers/logout?redirect_to=/',
+      },
+      // Rewrites for /search
+      {
+        source: '/search/designers/:name',
+        destination: '/search',
+      },
+      {
+        source: '/search/designers/:name/:category',
+        destination: '/search',
+      },
+      {
+        // This rewrite will also handle `/search/designers`
+        source: '/search/:category',
+        destination: '/search',
+      },
+    ]
+  },
+})
+>>>>>>> parent of f3a6202 (testing)

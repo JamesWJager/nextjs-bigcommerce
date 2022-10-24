@@ -18,7 +18,10 @@ out/
 # misc
 .DS_Store
 *.pem
+<<<<<<< HEAD
 .idea
+=======
+>>>>>>> parent of f3a6202 (testing)
 
 # debug
 npm-debug.log*

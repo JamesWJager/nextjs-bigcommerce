@@ -1,4 +1,5 @@
 .root {
+<<<<<<< HEAD
   @apply fixed bg-black bg-opacity-40 flex items-center inset-0 z-50 justify-center;
   backdrop-filter: blur(0.8px);
   -webkit-backdrop-filter: blur(0.8px);
@@ -6,12 +7,23 @@
 
 .modal {
   @apply bg-primary p-12 border border-accent-2 relative;
+=======
+  @apply fixed bg-primary text-primary flex items-center inset-0 z-50 justify-center;
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+.modal {
+  @apply bg-primary p-12 border border-accents-2 relative;
+>>>>>>> parent of f3a6202 (testing)
 }
 
 .modal:focus {
   @apply outline-none;
 }
+<<<<<<< HEAD
 
 .close {
   @apply hover:text-accent-5 transition ease-in-out duration-150 focus:outline-none absolute right-0 top-0 m-6;
 }
+=======
+>>>>>>> parent of f3a6202 (testing)

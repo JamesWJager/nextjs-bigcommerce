@@ -1,9 +1,17 @@
 .body {
+<<<<<<< HEAD
   @apply text-base leading-7 max-w-6xl mx-auto;
 }
 
 .heading {
   @apply text-5xl pt-1 pb-2 font-semibold tracking-wide cursor-pointer mb-2;
+=======
+  @apply text-lg leading-7 font-medium max-w-6xl mx-auto;
+}
+
+.heading {
+  @apply text-5xl mb-12;
+>>>>>>> parent of f3a6202 (testing)
 }
 
 .pageHeading {
@@ -11,6 +19,7 @@
 }
 
 .sectionHeading {
+<<<<<<< HEAD
   @apply pt-1 pb-2 text-2xl font-bold tracking-wide cursor-pointer mb-2;
 }
 
@@ -72,4 +81,7 @@
 
 .body a:hover {
   @apply no-underline;
+=======
+  @apply pt-1 pb-2 font-semibold leading-7 tracking-wider uppercase border-b border-accents-2 mb-3;
+>>>>>>> parent of f3a6202 (testing)
 }

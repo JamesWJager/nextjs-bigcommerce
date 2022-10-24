@@ -1,5 +1,6 @@
 .root {
   @apply inline-flex text-center items-center leading-7;
+<<<<<<< HEAD
 }
 
 .root .dot {
@@ -18,6 +19,25 @@
 
 .root .dot::nth-of-type(3) {
   animation-delay: 0.4s;
+=======
+
+  & span {
+    @apply bg-accents-6 rounded-full h-2 w-2;
+    animation-name: blink;
+    animation-duration: 1.4s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+    margin: 0 2px;
+
+    &:nth-of-type(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-of-type(3) {
+      animation-delay: 0.4s;
+    }
+  }
+>>>>>>> parent of f3a6202 (testing)
 }
 
 @keyframes blink {
